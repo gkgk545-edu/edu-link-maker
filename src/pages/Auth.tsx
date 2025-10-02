@@ -1,3 +1,5 @@
+// src/pages/Auth.tsx
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,38 +15,30 @@ const Auth = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   
+  // --- 변경된 부분: adminName을 email로 변경 ---
   const [loginData, setLoginData] = useState({
-    schoolName: "",
-    adminName: "",
+    email: "",
     password: ""
   });
   
   const [signupData, setSignupData] = useState({
     schoolName: "",
-    adminName: "",
+    adminName: "", // 프로필 저장을 위해 담당자명 필드는 유지
+    email: "",
     password: "",
     confirmPassword: ""
   });
 
-  // 안전한 이메일 생성 함수
-  const createSafeEmail = (schoolName: string, adminName: string): string => {
-    // 모든 공백과 특수문자 제거, 한글/영문/숫자만 유지
-    const sanitizedSchool = schoolName.replace(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
-    const sanitizedAdmin = adminName.replace(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
-    
-    // 소문자로 변환하고 이메일 생성
-    return `${sanitizedSchool}_${sanitizedAdmin}@school.com`.toLowerCase();
-  };
+  // --- 삭제된 부분: createSafeEmail 함수 제거 ---
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const email = createSafeEmail(loginData.schoolName, loginData.adminName);
-      
+      // --- 변경된 부분: 이메일을 직접 사용 ---
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: loginData.email,
         password: loginData.password,
       });
 
@@ -75,10 +69,9 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      const email = createSafeEmail(signupData.schoolName, signupData.adminName);
-      
+      // --- 변경된 부분: 이메일을 직접 사용 ---
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: signupData.email,
         password: signupData.password,
         options: {
           data: {
@@ -92,14 +85,12 @@ const Auth = () => {
       if (error) throw error;
 
       toast.success("회원가입 성공! 로그인해주세요.");
-      // Switch to login tab
       const loginTab = document.querySelector('[value="login"]') as HTMLElement;
       loginTab?.click();
       
-      // Pre-fill login form
+      // --- 변경된 부분: 로그인 폼에 이메일 채우기 ---
       setLoginData({
-        schoolName: signupData.schoolName,
-        adminName: signupData.adminName,
+        email: signupData.email,
         password: ""
       });
     } catch (error: any) {
@@ -132,23 +123,15 @@ const Auth = () => {
             
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
+                {/* --- 변경된 부분: 로그인 폼 --- */}
                 <div className="space-y-2">
-                  <Label htmlFor="login-school">학교명</Label>
+                  <Label htmlFor="login-email">이메일</Label>
                   <Input
-                    id="login-school"
-                    placeholder="예: 서울중학교"
-                    value={loginData.schoolName}
-                    onChange={(e) => setLoginData({...loginData, schoolName: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="login-admin">담당자명</Label>
-                  <Input
-                    id="login-admin"
-                    placeholder="예: 홍길동"
-                    value={loginData.adminName}
-                    onChange={(e) => setLoginData({...loginData, adminName: e.target.value})}
+                    id="login-email"
+                    type="email"
+                    placeholder="example@school.com"
+                    value={loginData.email}
+                    onChange={(e) => setLoginData({...loginData, email: e.target.value})}
                     required
                   />
                 </div>
@@ -169,6 +152,7 @@ const Auth = () => {
             </TabsContent>
             
             <TabsContent value="signup">
+              {/* --- 변경된 부분: 회원가입 폼 --- */}
               <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-school">학교명</Label>
@@ -187,6 +171,17 @@ const Auth = () => {
                     placeholder="예: 홍길동"
                     value={signupData.adminName}
                     onChange={(e) => setSignupData({...signupData, adminName: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">이메일</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    placeholder="example@school.com"
+                    value={signupData.email}
+                    onChange={(e) => setSignupData({...signupData, email: e.target.value})}
                     required
                   />
                 </div>
