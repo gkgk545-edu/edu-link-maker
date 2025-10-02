@@ -26,13 +26,22 @@ const Auth = () => {
     confirmPassword: ""
   });
 
+  // 안전한 이메일 생성 함수
+  const createSafeEmail = (schoolName: string, adminName: string): string => {
+    // 모든 공백과 특수문자 제거, 한글/영문/숫자만 유지
+    const sanitizedSchool = schoolName.replace(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
+    const sanitizedAdmin = adminName.replace(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
+    
+    // 소문자로 변환하고 이메일 생성
+    return `${sanitizedSchool}_${sanitizedAdmin}@school.com`.toLowerCase();
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Changed: Use .com instead of .internal for valid email format
-      const email = `${loginData.schoolName}_${loginData.adminName}@school.com`.toLowerCase().replace(/\s/g, '');
+      const email = createSafeEmail(loginData.schoolName, loginData.adminName);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -66,8 +75,7 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // Changed: Use .com instead of .internal for valid email format
-      const email = `${signupData.schoolName}_${signupData.adminName}@school.com`.toLowerCase().replace(/\s/g, '');
+      const email = createSafeEmail(signupData.schoolName, signupData.adminName);
       
       const { data, error } = await supabase.auth.signUp({
         email,
