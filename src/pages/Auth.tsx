@@ -31,8 +31,8 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // For login, we need to use email format
-      const email = `${loginData.schoolName}_${loginData.adminName}@school.internal`.toLowerCase().replace(/\s/g, '');
+      // Changed: Use .com instead of .internal for valid email format
+      const email = `${loginData.schoolName}_${loginData.adminName}@school.com`.toLowerCase().replace(/\s/g, '');
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -66,8 +66,8 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // Create a unique email from school and admin name
-      const email = `${signupData.schoolName}_${signupData.adminName}@school.internal`.toLowerCase().replace(/\s/g, '');
+      // Changed: Use .com instead of .internal for valid email format
+      const email = `${signupData.schoolName}_${signupData.adminName}@school.com`.toLowerCase().replace(/\s/g, '');
       
       const { data, error } = await supabase.auth.signUp({
         email,
