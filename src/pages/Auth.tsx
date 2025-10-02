@@ -1,5 +1,3 @@
-// src/pages/Auth.tsx
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,29 +12,28 @@ import { School } from "lucide-react";
 const Auth = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  
-  // --- 변경된 부분: adminName을 email로 변경 ---
+
+  // 1. 로그인 State: 이메일을 직접 입력받도록 변경
   const [loginData, setLoginData] = useState({
     email: "",
     password: ""
   });
-  
+
+  // 2. 회원가입 State: 'email' 필드 추가
   const [signupData, setSignupData] = useState({
     schoolName: "",
-    adminName: "", // 프로필 저장을 위해 담당자명 필드는 유지
+    adminName: "",
     email: "",
     password: "",
     confirmPassword: ""
   });
 
-  // --- 삭제된 부분: createSafeEmail 함수 제거 ---
-
+  // 3. handleLogin 함수: 입력받은 이메일을 그대로 사용
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // --- 변경된 부분: 이메일을 직접 사용 ---
       const { data, error } = await supabase.auth.signInWithPassword({
         email: loginData.email,
         password: loginData.password,
@@ -53,9 +50,10 @@ const Auth = () => {
     }
   };
 
+  // 4. handleSignup 함수: 입력받은 이메일을 그대로 사용
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (signupData.password !== signupData.confirmPassword) {
       toast.error("비밀번호가 일치하지 않습니다.");
       return;
@@ -69,7 +67,6 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // --- 변경된 부분: 이메일을 직접 사용 ---
       const { data, error } = await supabase.auth.signUp({
         email: signupData.email,
         password: signupData.password,
@@ -87,8 +84,8 @@ const Auth = () => {
       toast.success("회원가입 성공! 로그인해주세요.");
       const loginTab = document.querySelector('[value="login"]') as HTMLElement;
       loginTab?.click();
-      
-      // --- 변경된 부분: 로그인 폼에 이메일 채우기 ---
+
+      // 회원가입 후 로그인 폼에 이메일 자동 채우기
       setLoginData({
         email: signupData.email,
         password: ""
@@ -122,8 +119,8 @@ const Auth = () => {
             </TabsList>
             
             <TabsContent value="login">
+              {/* --- 5. 로그인 폼 UI 수정 --- */}
               <form onSubmit={handleLogin} className="space-y-4">
-                {/* --- 변경된 부분: 로그인 폼 --- */}
                 <div className="space-y-2">
                   <Label htmlFor="login-email">이메일</Label>
                   <Input
@@ -152,7 +149,7 @@ const Auth = () => {
             </TabsContent>
             
             <TabsContent value="signup">
-              {/* --- 변경된 부분: 회원가입 폼 --- */}
+              {/* --- 6. 회원가입 폼 UI 수정 --- */}
               <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-school">학교명</Label>
